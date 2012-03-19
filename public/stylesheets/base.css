@@ -15,7 +15,7 @@
 
   .front{
     z-index: 20;
-    background-image: url(images/Seamles-Blue-49.jpg); 
+    background-image: url(/images/Seamles-Blue-49.jpg); 
   }
 
   .flip .front{
