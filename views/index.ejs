@@ -127,6 +127,82 @@
       }(document, 'script', 'facebook-jssdk'));
     </script>
 
+      <script type="text/javascript">
+  function arrayShuffle(){
+      var tmp, rand;
+    for(var i =0; i < this.length; i++){
+        rand = Math.floor(Math.random() * this.length);
+        tmp = this[i]; 
+        this[i] = this[rand]; 
+        this[rand] =tmp;
+    }
+  }
+
+  Array.prototype.shuffle =arrayShuffle;
+
+  var count = 0;
+
+  $(document).ready(function() {
+    $.getJSON('http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?&format=json', function(data){
+        //var copy = data.items.slice();
+        var pictures=[];
+        console.log(data.items);
+        for(i=0; i<8; i++){
+          var pic = {
+            id: i,
+            url: data.items[i].media.m
+          }
+          pictures.push(pic);
+          pictures.push(pic);
+        }
+        pictures.shuffle();
+        for(i=0; i<16; i++){
+          $('#memory').append('<div id="square_'+i+'" class="container card" data-key="'+pictures[i].id+'">'+
+            '<div class="square front"></div>'+
+            '<div class="square back" style="background-image:url('+pictures[i].url+')"></div>'+
+          '</div>');
+          console.log(i);
+        }
+
+        $('.container').click(function(e){
+          var flippedContainers = $('.flip');
+          if($(this).hasClass('flip')){
+            $(this).removeClass('flip');
+          }
+          else if(flippedContainers.length <2){
+            $(this).addClass('flip');
+          }
+
+          flippedContainers = $('.flip');
+          if(flippedContainers.length == 2){
+            if($(flippedContainers[0]).attr('data-key') == $(flippedContainers[1]).attr('data-key')){
+              window.setTimeout(function(){
+                $(flippedContainers).removeClass('container').children().fadeOut();
+              }, 2000);
+            }
+            console.log('two containers flipped');
+            window.setTimeout(function(){
+              flippedContainers.removeClass('flip');
+            }, 2000);
+            count++;
+            $('#result').text(count);
+          }
+
+          if($('.container').length == 0){
+            var name = prompt ("Wie heißt du?","");
+            var highscore = $.parseJSON(localStorage.getItem('highscore'));
+            if(!highscore){
+              highscore = [];
+            }
+            highscore.push({name: name, score: count});
+            localStorage.setItem('highscore',JSON.stringify(highscore));
+          }
+        });
+      });
+    
+  });
+  </script>
+
     <header class="clearfix">
       <% if (user) { %>
       <p id="picture" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></p>
@@ -166,7 +242,10 @@
       </div>
       <% } %>
     </header>
-
+    <section>
+        <div id="memory"></div>
+  <div>Z&uuml;ge: <span id="result">0</span></div> 
+    </section>
     
   </body>
 </html>
