@@ -16,6 +16,7 @@ var app = express.createServer(
     scope:  'user_likes,user_photos,user_photo_video_tags'
   })
 );
+var io = require('socket.io').listen(app);
 
 // listen to the PORT given to us in the environment
 var port = process.env.PORT || 3000;
@@ -101,3 +102,12 @@ function handle_facebook_request(req, res) {
 
 app.get('/', handle_facebook_request);
 app.post('/', handle_facebook_request);
+
+io.sockets.on('connection', function (socket) {
+  socket.on('flip', function (data) {
+    console.log("flip", data);
+  });
+  socket.on('match', function (data) {
+    console.log("match", data);
+  });
+});

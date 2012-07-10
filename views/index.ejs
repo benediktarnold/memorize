@@ -7,7 +7,7 @@
     <title><%= app.name %></title>
     <!--<link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />-->
     <!--<link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />-->
-    <link href="stylesheets/base.css" rel="stylesheet">
+    <link rel="stylesheet/less" type="text/css" href="stylesheets/base.less">
     <!--<link href="stylesheets/bootstrap.css" rel="stylesheet">
     <link href="stylesheets/bootstrap-responsive.css" rel="stylesheet">-->
 
@@ -32,7 +32,7 @@
     <meta property="og:description" content="My first app" />
     <meta property="fb:app_id" content="<%= app.id %>" />
 
-    
+    <script src="/socket.io/socket.io.js"></script>
 
     <script type="text/javascript" src="/scripts/jquery.min.js"></script>
 
@@ -148,6 +148,11 @@
   var count = 0;
 
   $(document).ready(function() {
+      var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
     $.getJSON('http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?&format=json', function(data){
         //var copy = data.items.slice();
         var pictures=[];
@@ -182,6 +187,7 @@
           }
           else if(flippedContainers.length <2){
             $(this).addClass('flip');
+            socket.emit('flip', { key: $(this).attr('data-key') });
           }
 
           flippedContainers = $('.flip');
@@ -190,6 +196,7 @@
               window.setTimeout(function(){
                 $(flippedContainers).removeClass('cont').children().hide();
               }, 2000);
+              socket.emit('match', { key: $(flippedContainers[0]).attr('data-key') });
             }
             console.log('two containers flipped');
             window.setTimeout(function(){
@@ -213,6 +220,23 @@
     
   });
   </script>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">
+  Memorize
+      </a>
+      <ul class="nav">
+        <li>
+         <p class="navbar-text">Z&uuml;ge: <span id="result" class="badge badge-info">0</span></p>
+        </li>
+        <li>
+         <p class="navbar-text">Paare: <span id="pairs" class="badge badge-success">0</span></p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
 
    <!-- <header class="clearfix">
       <% if (user) { %>
@@ -255,7 +279,6 @@
     </header>-->
    
    <div class="container">
-    <section class="span12">Z&uuml;ge: <span id="result">0</span></section>
     <div class="row">      
         <div id="memory" class="span12"></div>
     </div>
